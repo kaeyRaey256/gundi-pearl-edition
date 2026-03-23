@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GUNDI CARDS – The Pearl Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1AABAA;
+    --teal-dark: #0D7A79;
+    --teal-light: #4DD4D3;
+    --teal-pale: #B2ECEB;
+    --gold: #E8B84B;
+    --gold-dark: #C99A2E;
+    --cream: #FDF6E3;
+    --ink: #1A2E2E;
+    --ink-light: #2D4E4E;
+    --rust: #C85A2B;
+    --sage: #5A8A6A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === SVG PATTERN BACKGROUNDS === */
+  .pattern-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.07;
+  }
+
+  /* === SCREENS === */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* === SPLASH SCREEN === */
+  #splash {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .splash-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .splash-content { position: relative; z-index: 2; }
+
+  .logo-gundi {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    font-weight: 900;
+    color: var(--teal-light);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-shadow: 4px 4px 0 var(--teal-dark), 8px 8px 20px rgba(0,0,0,0.4);
+    animation: titlePop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  .logo-sub {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 0.25rem;
+    font-weight: 700;
+    animation: fadeUp 0.8s 0.3s both;
+  }
+
+  .logo-pearl {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(0.9rem, 3vw, 1.3rem);
+    color: var(--teal-pale);
+    margin-top: 0.5rem;
+    font-style: italic;
+    animation: fadeUp 0.8s 0.5s both;
+  }
+
+  .pearl-divider {
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.2rem auto;
+    animation: fadeUp 0.8s 0.6s both;
+  }
+
+  .splash-tagline {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    color: var(--teal-pale);
+    opacity: 0.8;
+    max-width: 380px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+    animation: fadeUp 0.8s 0.7s both;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 30px rgba(26,171,170,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: all 0.2s ease;
+    animation: fadeUp 0.8s 0.9s both;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--teal-light), var(--teal));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(26,171,170,0.5); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-secondary {
+    display: inline-block;
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.7rem 1.8rem;
+    border: 2px solid var(--gold);
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    margin-left: 1rem;
+    animation: fadeUp 0.8s 1s both;
+  }
+  .btn-secondary:hover { background: var(--gold); color: var(--ink); transform: translateY(-2px); }
+
+  .credits {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--teal-pale);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* === SETUP SCREEN === */
+  #setup {
+    padding: 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .setup-card {
+    background: var(--ink-light);
+    border: 1px solid rgba(26,171,170,0.3);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .setup-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--teal-light);
+    margin-bottom: 0.25rem;
+  }
+
+  .setup-sub {
+    font-size: 0.85rem;
+    color: var(--teal-pale);
+    opacity: 0.7;
+    margin-bottom: 2rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .field-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .team-input-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+  }
+
+  .team-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(26,171,170,0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--cream);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .team-input:focus { border-color: var(--teal); }
+  .team-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  .btn-remove {
+    background: rgba(200,90,43,0.2);
+    border: 1px solid rgba(200,90,43,0.3);
+    color: var(--rust);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { background: var(--rust); color: white; }
+
+  .btn-add-team {
+    background: rgba(26,171,170,0.1);
+    border: 1px dashed rgba(26,171,170,0.4);
+    color: var(--teal-light);
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s;
+  }
+  .btn-add-team:hover { background: rgba(26,171,170,0.2); }
+
+  .timer-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .timer-option {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(26,171,170,0.2);
+    border-radius: 12px;
+    padding: 0.7rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--teal-pale);
+  }
+  .timer-option.selected {
+    background: rgba(26,171,170,0.2);
+    border-color: var(--teal);
+    color: var(--teal-light);
+  }
+
+  .start-section { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  /* === GAME SCREEN === */
+  #game {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .game-header {
+    background: rgba(13,122,121,0.3);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(26,171,170,0.2);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .game-round-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .game-title-small {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--teal-light);
+  }
+
+  .btn-icon {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--cream);
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.12); }
+
+  /* Scoreboard */
+  .score-strip {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .score-strip::-webkit-scrollbar { display: none; }
+
+  .score-team {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    margin-right: 0.75rem;
+    transition: all 0.3s;
+    min-width: 90px;
+    border: 1px solid transparent;
+  }
+  .score-team.current-turn {
+    background: rgba(26,171,170,0.2);
+    border-color: var(--teal);
+  }
+  .score-team-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-pale);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+  .score-team.current-turn .score-team-name { color: var(--teal-light); opacity: 1; }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--cream);
+    line-height: 1;
+    font-weight: 700;
+  }
+  .score-team.current-turn .score-num { color: var(--teal-light); }
+
+  /* Playing area */
+  .play-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    gap: 1rem;
+    overflow-y: auto;
+  }
+
+  .turn-banner {
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .turn-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .turn-team {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--cream);
+  }
+
+  /* Timer ring */
+  .timer-wrap {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+  }
+  .timer-ring {
+    transform: rotate(-90deg);
+    position: absolute;
+    inset: 0;
+  }
+  .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 6; }
+  .timer-ring-fill {
+    fill: none;
+    stroke: var(--teal);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 251;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s;
+  }
+  .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--cream);
+  }
+
+  /* Card */
+  .card-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .card-face {
+    background: linear-gradient(145deg, var(--ink-light) 0%, #1a3a3a 100%);
+    border: 2px solid rgba(26,171,170,0.4);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+    animation: cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .card-pattern-corner {
+    position: absolute;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .card-pattern-corner.tl { top: -20px; left: -20px; }
+  .card-pattern-corner.br { bottom: -20px; right: -20px; transform: rotate(180deg); }
+
+  .card-round-badge {
+    display: inline-block;
+    background: rgba(232,184,75,0.15);
+    border: 1px solid rgba(232,184,75,0.4);
+    color: var(--gold);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .words-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .word-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .word-item:hover { background: rgba(255,255,255,0.08); }
+  .word-item.guessed {
+    background: rgba(26,171,170,0.12);
+    border-color: rgba(26,171,170,0.3);
+  }
+  .word-item.skipped {
+    background: rgba(200,90,43,0.08);
+    border-color: rgba(200,90,43,0.2);
+    opacity: 0.5;
+  }
+  .word-num {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0.7;
+    width: 14px;
+    flex-shrink: 0;
+  }
+  .word-text {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .word-item.guessed .word-text { color: var(--teal-light); text-decoration: line-through; opacity: 0.7; }
+  .word-item.skipped .word-text { text-decoration: line-through; }
+  .word-check {
+    position: absolute;
+    right: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .word-item.guessed .word-check { opacity: 1; }
+
+  .card-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .btn-action {
+    flex: 1;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .btn-next-card {
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    color: white;
+    box-shadow: 0 6px 20px rgba(26,171,170,0.3);
+  }
+  .btn-next-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,171,170,0.4); }
+  .btn-end-turn {
+    background: rgba(232,184,75,0.15);
+    color: var(--gold);
+    border: 1px solid rgba(232,184,75,0.3);
+  }
+  .btn-end-turn:hover { background: rgba(232,184,75,0.25); }
+
+  /* Waiting screen (between turns) */
+  .waiting-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    flex: 1;
+  }
+  .waiting-overlay.active { display: flex; }
+  .play-area.hidden { display: none; }
+
+  .waiting-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .waiting-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--teal-light);
+    margin-bottom: 0.5rem;
+  }
+  .waiting-sub {
+    color: var(--teal-pale);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .scored-summary {
+    background: rgba(26,171,170,0.1);
+    border: 1px solid rgba(26,171,170,0.2);
+    border-radius: 16px;
+    padding: 1rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .scored-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    color: var(--teal-light);
+    line-height: 1;
+  }
+  .scored-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* === RESULTS SCREEN === */
+  #results {
+    padding: 2rem;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  .results-card {
+    background: var(--ink-light);
+    border: 1px solid rgba(26,171,170,0.3);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+
+  .trophy { font-size: 4rem; margin-bottom: 1rem; animation: bounce 1s ease; }
+
+  .winner-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .winner-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--teal-light);
+    margin-bottom: 1.5rem;
+  }
+
+  .results-list {
+    list-style: none;
+    margin-bottom: 1.5rem;
+  }
+  .results-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    background: rgba(255,255,255,0.03);
+  }
+  .results-list li.first {
+    background: rgba(232,184,75,0.1);
+    border: 1px solid rgba(232,184,75,0.2);
+  }
+  .result-rank { font-size: 1.2rem; width: 30px; }
+  .result-name { flex: 1; text-align: left; padding-left: 0.5rem; font-weight: 700; }
+  .result-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--teal-light);
+  }
+
+  /* === HOW TO PLAY === */
+  #howto {
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  .howto-inner {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .howto-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--teal-light);
+    margin-bottom: 0.25rem;
+  }
+  .howto-steps { margin: 1.5rem 0; }
+  .howto-step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-text { line-height: 1.5; }
+  .step-text strong { color: var(--gold); }
+
+  /* === ANIMATIONS === */
+  @keyframes titlePop {
+    from { opacity: 0; transform: scale(0.8) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cardReveal {
+    from { opacity: 0; transform: rotateY(-15deg) translateY(10px); }
+    to { opacity: 1; transform: rotateY(0) translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    30% { transform: translateY(-20px); }
+    60% { transform: translateY(-8px); }
+  }
+  @keyframes timeWarn {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .time-warning .timer-ring-fill { stroke: var(--rust); }
+  .time-warning .timer-text { color: var(--rust); animation: timeWarn 0.5s infinite; }
+
+  /* Confetti particle */
+  .confetti { position: fixed; pointer-events: none; z-index: 100; }
+
+  /* Decorative African pattern SVG shapes */
+  .deco-pattern {
+    position: fixed;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Global African pattern background -->
+<svg class="pattern-bg" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <pattern id="africanPattern" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+      <!-- Kente-inspired geometric shapes -->
+      <rect x="0" y="0" width="80" height="80" fill="none"/>
+      <!-- Diamond -->
+      <polygon points="40,5 75,40 40,75 5,40" fill="none" stroke="#1AABAA" stroke-width="1.5"/>
+      <!-- Inner diamond -->
+      <polygon points="40,18 62,40 40,62 18,40" fill="none" stroke="#E8B84B" stroke-width="1"/>
+      <!-- Corner dots -->
+      <circle cx="0" cy="0" r="4" fill="#1AABAA"/>
+      <circle cx="80" cy="0" r="4" fill="#1AABAA"/>
+      <circle cx="0" cy="80" r="4" fill="#1AABAA"/>
+      <circle cx="80" cy="80" r="4" fill="#1AABAA"/>
+      <!-- Center dot -->
+      <circle cx="40" cy="40" r="3" fill="#E8B84B"/>
+      <!-- Crosshatch lines -->
+      <line x1="0" y1="40" x2="80" y2="40" stroke="#1AABAA" stroke-width="0.5" opacity="0.5"/>
+      <line x1="40" y1="0" x2="40" y2="80" stroke="#1AABAA" stroke-width="0.5" opacity="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#africanPattern)"/>
+</svg>
+
+<!-- === SPLASH SCREEN === -->
+<div id="splash" class="screen active">
+  <!-- Decorative radial glow -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%, rgba(26,171,170,0.15) 0%, transparent 70%);pointer-events:none;"></div>
+  
+  <!-- Decorative border pattern top -->
+  <svg style="position:absolute;top:0;left:0;right:0;width:100%;height:60px;opacity:0.6;" viewBox="0 0 800 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="4" fill="#1AABAA"/>
+    <rect y="8" width="800" height="1.5" fill="#E8B84B" opacity="0.5"/>
+    <!-- Pattern row -->
+    <g fill="#1AABAA" opacity="0.8">
+      <script type="text/javascript"></script>
+    </g>
+    <pattern id="topBar" x="0" y="12" width="40" height="40" patternUnits="userSpaceOnUse">
+      <polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="none" stroke="#1AABAA" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="3" fill="#E8B84B"/>
+    </pattern>
+    <rect y="12" width="800" height="40" fill="url(#topBar)" opacity="0.3"/>
+  </svg>
+
+  <div class="splash-content">
+    <!-- Logo Pearl icon -->
+    <div style="margin-bottom:1rem;animation:fadeUp 0.6s 0.1s both;">
+      <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <!-- Crested Crane silhouette simplified -->
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#1AABAA" stroke-width="2"/>
+        <circle cx="30" cy="30" r="22" fill="none" stroke="#E8B84B" stroke-width="1" stroke-dasharray="4 3"/>
+        <!-- Pearl -->
+        <circle cx="30" cy="30" r="8" fill="#1AABAA" opacity="0.8"/>
+        <circle cx="27" cy="27" r="2.5" fill="white" opacity="0.4"/>
+        <!-- Decorative rays -->
+        <line x1="30" y1="4" x2="30" y2="12" stroke="#E8B84B" stroke-width="2" stroke-linecap="round"/>
+        <line x1="56" y1="30" x2="48" y2="30" stroke="#E8B84B" stroke-width="2" stroke-linecap="round"/>
+        <line x1="30" y1="56" x2="30" y2="48" stroke="#E8B84B" stroke-width="2" stroke-linecap="round"/>
+        <line x1="4" y1="30" x2="12" y2="30" stroke="#E8B84B" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="logo-gundi">GUNDI</div>
+    <div class="logo-sub">Cards</div>
+    <div class="logo-pearl">✦ The Pearl Edition ✦</div>
+    <div class="pearl-divider"></div>
+    <p class="splash-tagline">Uganda's ultimate word guessing game. Cards packed with culture, laughter & local flavour.</p>
+
+    <div>
+      <button class="btn-primary" onclick="showScreen('setup')"><span>▶ &nbsp;Start Game</span></button>
+      <button class="btn-secondary" onclick="showScreen('howto')">How to Play</button>
+    </div>
+
+    <!-- Utalii Creative credit -->
+    <div style="margin-top:3rem;animation:fadeUp 0.8s 1.2s both;">
+      <svg width="90" height="22" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg" opacity="0.5">
+        <text x="0" y="18" font-family="Nunito,sans-serif" font-weight="800" font-size="14" fill="#1AABAA" letter-spacing="3">UTALii</text>
+        <text x="70" y="20" font-family="Nunito,sans-serif" font-size="8" fill="#E8B84B" letter-spacing="1">Creative</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Bottom border pattern -->
+  <svg style="position:absolute;bottom:0;left:0;right:0;width:100%;height:20px;" viewBox="0 0 800 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <rect y="16" width="800" height="4" fill="#1AABAA" opacity="0.6"/>
+  </svg>
+</div>
+
+<!-- === HOW TO PLAY === -->
+<div id="howto" class="screen">
+  <div class="game-header">
+    <button class="btn-icon" onclick="showScreen('splash')">←</button>
+    <span class="game-title-small">How to Play</span>
+    <div style="width:40px;"></div>
+  </div>
+  <div style="padding:1.5rem;overflow-y:auto;flex:1;">
+    <div class="howto-inner">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div class="howto-title">Playing GUNDI</div>
+        <p style="color:var(--teal-pale);opacity:0.7;font-size:0.9rem;">Uganda's word guessing party game</p>
+      </div>
+
+      <div class="howto-steps">
+        <div class="howto-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Teams & Timer</strong> — Set up your teams (2–6 players) and choose a timer: 30, 60, or 90 seconds per turn.</div>
+        </div>
+        <div class="howto-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Draw a Card</strong> — Each card has a set of words. The active team's clue-giver sees all the words.</div>
+        </div>
+        <div class="howto-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Give Clues</strong> — Describe each word using gestures, sounds or clues — <strong>no spelling it out!</strong> Teammates guess.</div>
+        </div>
+        <div class="howto-step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Tap to Score</strong> — Tap a word when your team guesses it correctly. Skipped words score nothing.</div>
+        </div>
+        <div class="howto-step">
+          <div class="step-num">5</div>
+          <div class="step-text"><strong>Pass & Score</strong> — When the timer ends or all words are guessed, the team earns <strong>1 point per correct word</strong>.</div>
+        </div>
+        <div class="howto-step">
+          <div class="step-num">6</div>
+          <div class="step-text"><strong>Win</strong> — Play through all cards or set a score target. The team with the most points wins!</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.2);border-radius:16px;padding:1rem 1.2rem;margin-bottom:1.5rem;">
+        <div style="color:var(--gold);font-weight:700;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;">💡 Pro Tip</div>
+        <div style="font-size:0.88rem;color:var(--cream);line-height:1.5;opacity:0.85;">The bold/highlighted words on each card are worth double — they're the tricky ones!</div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;" onclick="showScreen('setup')"><span>Let's Play →</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- === SETUP SCREEN === -->
+<div id="setup" class="screen">
+  <div class="game-header">
+    <button class="btn-icon" onclick="showScreen('splash')">←</button>
+    <span class="game-title-small">Game Setup</span>
+    <div style="width:40px;"></div>
+  </div>
+  <div style="padding:1.5rem;overflow-y:auto;flex:1;display:flex;flex-direction:column;align-items:center;">
+    <div class="setup-card">
+      <div class="setup-title">Setup Teams</div>
+      <div class="setup-sub">2 – 6 teams supported</div>
+
+      <label class="field-label">Team Names</label>
+      <div id="teamsContainer">
+        <div class="team-input-row">
+          <input type="text" class="team-input team-name" placeholder="Team Nile 🌊" maxlength="20">
+        </div>
+        <div class="team-input-row">
+          <input type="text" class="team-input team-name" placeholder="Team Cranes 🦤" maxlength="20">
+        </div>
+      </div>
+      <button class="btn-add-team" onclick="addTeam()">+ Add Team</button>
+
+      <label class="field-label">Timer per Turn</label>
+      <div class="timer-row">
+        <div class="timer-option" data-sec="30" onclick="selectTimer(30)">30s</div>
+        <div class="timer-option selected" data-sec="60" onclick="selectTimer(60)">60s</div>
+        <div class="timer-option" data-sec="90" onclick="selectTimer(90)">90s</div>
+      </div>
+
+      <div class="start-section">
+        <button class="btn-primary" style="text-align:center;" onclick="startGame()"><span>🎲 &nbsp;Start Playing!</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === GAME SCREEN === -->
+<div id="game" class="screen">
+  <div class="game-header">
+    <button class="btn-icon" onclick="confirmQuit()">✕</button>
+    <div style="text-align:center;">
+      <div class="game-round-label" id="cardCounter">Card 1 of 25</div>
+      <div class="game-title-small">GUNDI</div>
+    </div>
+    <button class="btn-icon" onclick="togglePause()" id="pauseBtn">⏸</button>
+  </div>
+
+  <div class="score-strip" id="scoreStrip"></div>
+
+  <!-- Waiting overlay (between turns) -->
+  <div class="waiting-overlay" id="waitingOverlay">
+    <div class="waiting-icon">🥁</div>
+    <div class="waiting-title" id="waitingTitle">Great Round!</div>
+    <div class="waiting-sub" id="waitingSub">Pass the device to the next team.</div>
+    <div class="scored-summary">
+      <div class="scored-num" id="scoredNum">0</div>
+      <div class="scored-label">Words Scored</div>
+    </div>
+    <button class="btn-primary" onclick="startTurn()" id="startTurnBtn"><span>🎯 Begin Turn</span></button>
+  </div>
+
+  <!-- Play area -->
+  <div class="play-area" id="playArea" style="display:none;">
+    <div class="turn-banner">
+      <div class="turn-label">Now Playing</div>
+      <div class="turn-team" id="currentTeamName">Team Nile</div>
+    </div>
+
+    <div class="timer-wrap" id="timerWrap">
+      <svg class="timer-ring" viewBox="0 0 90 90">
+        <circle class="timer-ring-bg" cx="45" cy="45" r="40"/>
+        <circle class="timer-ring-fill" id="timerRing" cx="45" cy="45" r="40"/>
+      </svg>
+      <div class="timer-text" id="timerDisplay">60</div>
+    </div>
+
+    <div class="card-container">
+      <div class="card-face" id="cardFace">
+        <!-- Pattern corners -->
+        <svg class="card-pattern-corner tl" width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="40,0 80,0 80,80 0,80 0,40" fill="none" stroke="#1AABAA" stroke-width="40" opacity="0.3"/>
+          <polygon points="0,0 60,0 60,60 0,60" fill="none" stroke="#E8B84B" stroke-width="1"/>
+          <circle cx="10" cy="10" r="4" fill="#E8B84B"/>
+          <circle cx="30" cy="10" r="2" fill="#1AABAA"/>
+          <circle cx="10" cy="30" r="2" fill="#1AABAA"/>
+          <polygon points="20,5 35,12 35,28 20,35 5,28 5,12" fill="none" stroke="#1AABAA" stroke-width="1"/>
+        </svg>
+        <svg class="card-pattern-corner br" width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="0,0 60,0 60,60 0,60" fill="none" stroke="#E8B84B" stroke-width="1"/>
+          <circle cx="10" cy="10" r="4" fill="#E8B84B"/>
+          <circle cx="30" cy="10" r="2" fill="#1AABAA"/>
+          <circle cx="10" cy="30" r="2" fill="#1AABAA"/>
+          <polygon points="20,5 35,12 35,28 20,35 5,28 5,12" fill="none" stroke="#1AABAA" stroke-width="1"/>
+        </svg>
+
+        <div class="card-round-badge" id="cardBadge">Round 1</div>
+        <div class="words-grid" id="wordsGrid"></div>
+        <div class="card-actions">
+          <button class="btn-action btn-end-turn" onclick="endTurn()">End Turn</button>
+          <button class="btn-action btn-next-card" onclick="nextCard()" id="nextCardBtn">Next Card →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === RESULTS SCREEN === -->
+<div id="results" class="screen">
+  <!-- Pattern header -->
+  <svg style="width:100%;height:8px;" viewBox="0 0 800 8" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <rect width="800" height="8" fill="#1AABAA"/>
+  </svg>
+  <div style="padding:2rem;overflow-y:auto;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="results-card">
+      <div class="trophy">🏆</div>
+      <div class="winner-title">Winner!</div>
+      <div class="winner-name" id="winnerName">Team Nile</div>
+
+      <ul class="results-list" id="resultsList"></ul>
+
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <button class="btn-primary" style="text-align:center;" onclick="restartGame()"><span>🔄 Play Again</span></button>
+        <button class="btn-secondary" onclick="showScreen('setup')" style="display:block;text-align:center;">Change Teams</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA: All 25 cards from the PDF
+// ═══════════════════════════════════════
+const ALL_CARDS = [
+  { id:1, words:["Uganda Revenue Authority","Madagascar","Charger","Photography Studio","Jeans","House party","Breakfast","Mulago Hospital","Passport","Constipation","Lockdown","Vaccine","Basketball","Nomadic people","Luwombo","Bus driver","Ghana","Album Cover","Nail polish","Barak Obama","Homework"] },
+  { id:2, words:["Uganda National Bureau of Standards","Millenial","Content Creation","Palm Trees","Fashion Show","Sweet potatoes","Lunch break","The Pearl of Africa","Embassy","Traffic","Pollution","Camera","Highlighter","Bathing soap","Garage","Matatu","Plastic chairs","Porridge","Andrew Tate","Feminism","Yams","India","YouTube"] },
+  { id:3, words:["Uganda Wildlife Authority","High Heels","Sunshine","South Sudan","Ghee","Candle","Uniform","Tesla","Joshua Cheptegei","Carpool","Lion","Brown Bread","Football","Voltage","Drinking Water","Emojis","Crested Crane","Bedroom","Kindergarten","Insect","Sushi","Blanket","Password","Slave trade"] },
+  { id:4, words:["Uganda Tourism Board","Film director","Uganda Airlines","Gluten free","Offals","Avocado","Earrings","Un-employment","Africa","Elon Musk","Microwave","Doctor","Airport","Testosterone","Carpet","Bee Hive","Anime","Fellowship","Volcano","Makeup","Bath tub","Dentist","Television","Covid-19"] },
+  { id:5, words:["Bunyoro-Kitara Kingdom","ATM Card","Map","Musician","Youth","Politics","Bulb","Uganda Martyrs Day","Public Holiday","Live-stream","Lawyer","Carpenter","Financial Literacy","China","Presidential Advisor","Christmas","Rainbow","Lingala","Bubble Gum","Grass","Report Card"] },
+  { id:6, words:["Buganda Kingdom","Email Address","Pregnant","Bananas","Puppies","Scientist","Bachelorette","The Budo League","Vladimir Putin","Monkey","Netflix and chill","Hotel","Kittens","Rice","Malakwang","Vacation","Law Abiding Citizen","Frying pan","Village","Workshop","Pillow case"] },
+  { id:7, words:["Namboole Stadium","Sipi Falls","Elephants","Parliament","Diaspora","Spear","Rihana","Eshabwe","Arabica Coffee","Donald Trump","Memes","Satellite","Eggs","Mirror Selfie","Slay Queen","Insomnia","Bottle-top","Screen-time","Swimming Pool","Valentine's Day","Drums"] },
+  { id:8, words:["Uganda Cranes","Flowers","Malewa","Dark Chocolate","Namugongo Shrine","Swahili","Cement","Viral Video","Bungee Jumping","Agriculture","Cookies","Constipation","Gardening","Friends","Restaurant","Fridge","Casava","Enemies","Pizza","Muzungu","Face mask"] },
+  { id:9, words:["Civil Aviation Authority of Uganda","TikTok","Tiles","Black Tea","Minerals","School Fees","Fanta","Non-Government Organisation","Gen Z","Cartoons","Bible","Braids","Retirement","Vanilla Ice-cream","Rwanda","Hunting","Butterfly","Waist trainer","Jinja Metropolitan Area","Cake","Sibling Rivalry"] },
+  { id:10, words:["Nyero Rock Paintings","Rift valley","Rice and Beans","Cocktails","Tilapia","Malaria","Dog","Kampala Capital City Authority","Fertile soil","Bantu","Farming","Kikosi Maalum","School bag","Apple Cider Vinegar","Kasubi Tombs","Egypt","Floods","Boxing Day","Super Strikers","Polio","Airtime"] },
+  { id:11, words:["The Uganda Martyrs","Juba","Vegetation","Okot p'Bitek","Smuggling","Black Panther","Heat-wave","Café Javas","Kenya","Batoro","Gorillos","Cat","Lagos","Black Tea","Kabaka","Volcanic Mountains","Protestant missionaries","Crickets","Algebra","White-board","Pencil"] },
+  { id:12, words:["Rolex","Lake Bunyonyi","Olive Oil","Chapati","Rain","Democratic Republic of Congo","Marriage","Dubai","Swamp","Riham Cola","Tree Climbing Lions","Ukraine","WiFi Network","Osmosis","Social Media","Volunteer","Corruption","Jack-fruit","Jumia","Mining","Microphone"] },
+  { id:13, words:["Muchomo","Frog","Pedestrian","Islam","Mombasa","Famine","Myth","Parliament","Busoga","Bark cloth","Force","Mountain Elgon","Idi Amin","Kagulu Rock","House Wife","Folk song","Gold","National Budget","Peas","Cow","Savanna vegetation"] },
+  { id:14, words:["Patriotism","Dodoma","Bahima","Soil","Traders","Rainfall","Primary School","Owino Market","Dictatorship","Dar-es-Salaam","Migration","Climate Change","Fishermen","Picfare Books","Nsenene","Ntinda","Mabira Forest","White Water Rafting","Milton Obote","Gipiri and Labongo","Murchinson Falls"] },
+  { id:15, words:["Karamojong","Potholes","Safe Boda","Bird Watching","Side hustle","Street food","Equator","Parte after parte","Drought","Egg-plant","Bantu","Charcoal stove","Nakawa Market","Nyege Nyege Music Festival","Gas cooker","Central African Republic","White Water Rafting","Passion Fruit","Matooke","Banyankole","Uganda People's Defence"] },
+  { id:16, words:["Pineapples","Mushanana","Church of Uganda","Afrobeats","Lugogo Cricket Oval","Silverback Gorillas","Fort Patiko","Mount Elgon","Hiphop Music","Karuma Falls","Entebbe International Airport","Cattle keeping","Kalangala","Royco","Kamuli District","Kabalagala","Namirembe Cathedral","Guava Tree","Posho","Luganda","Road-side Chicken"] },
+  { id:17, words:["Itanda Falls","Songs of Lawino","Source of the Nile","Traditional Wedding Ceremony","Old Taxi Park","Mount Rwenzori","Uganda Independence Grounds","National Social Security Fund","Lake Victoria","West Nile","Mpigi District","Uganda Waragi","Kampala Night-life","Nakasero Market","Lake Katwe","Diwali","Mobile Money","Thermos Flask","Ssese Island","Wine tasting","Kanzu"] },
+  { id:18, words:["Gomesi","Soroti","Cape Town","Kalo","Clans and Totems","Foreign exchange","Sugar-cane","Soursop","Sir Apollo Kaggwa","Red Roses","Ground nuts","Wakanda forever","Semei Kakungulu","Inflation","Garlic and Onions","Sukumawiki","Fast food","Wrist Watch","Stand-up comedy","Lemon grass","Nollywood"] },
+  { id:19, words:["Cabbage","Queen of Katwe","Sim-sim","Immunization","Bank of Uganda","Mukono","Kneel down","Roasted maize","The last king of Scotland","Population","Harare","Yusuf Lule","Meat-pie","CEO","Horn of Africa","Kintu and Nambi","Adulting","Tomatoes","Tailored suit","Kikomando","Sick-leave"] },
+  { id:20, words:["Lipstick","Sandals","Mbarara","Keys","Zoo","Mandazi","Safari","Roasted pork","Hiking","Big Kid Energy","Nelson Mandela","Farming","Gentle parenting","Chinua Achebe","The Lion King","Night prayer","Makerere University","Didier Drogba","Davido"] },
+  { id:21, words:["Kwame Nkrumah","Cucumber","Treadmill","Trevor Noah","Kadongo Kamu","Cheese","Gym","Crocodile","Bebe Cool","Sport day","Jomo Kenyatta International Airport","Ramadan","Paper clips","Cycling","Knitting","Surname","Corporal punishment","Coca-cola","Colonization","Burna boy","Marathon"] },
+  { id:22, words:["Bicycle","Award Show","Prison","Ludo","Uganda National Examination Board","Sharpener","Find X","Golf tournament","Oxygen tank","The Vatican","African proverb","Photosynthesis","House plant","Pajamas","Day Dream","Slum","Diapers","James Bond","Nightmare","Chlorophyll","Hostel"] },
+  { id:23, words:["Carbon-dioxide","Download","Palettes","Sun dress","Sandy beach","Phone screen","Child lock","Corn flakes","DJ","Buffet","Necklace","Oats","Salt shaker","Cockroach","Public transport","Slow living","Cappuccino","Picnic basket","Eye contact","Leaves","Bluetooth"] },
+  { id:24, words:["Busia","Oprah Winfrey","Library","Board games","Tacos","Moonlight","Lupita Nyongo","Tubayo Market Day","Colgate Toothpaste","Chess","Zebra crossing","Bribes","Giant jenga","Scented Candles","Newspapers","Polythene bags","Bushera","Blender","Receipt","Barbie doll","Milkshake"] },
+  { id:25, words:["World Cup","Track and field","Board Games","Shoe Polish","Chemistry","Mathematics","Baking Powder","Olympic Games","Honey comb","Private jet","Elevator","Ugandan Shillings","Plantain","Omweso","Malwa","Kitchen knife","Coconut water","Instagram","Arranged Marriage","State House","Ambulance"] }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let state = {
+  teams: [],
+  scores: [],
+  currentTeam: 0,
+  currentCard: 0,
+  timerSecs: 60,
+  timerRemaining: 60,
+  timerInterval: null,
+  wordStates: [], // 'neutral' | 'guessed' | 'skipped'
+  cardOrder: [],
+  paused: false,
+  turnActive: false
+};
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════
+function addTeam() {
+  const container = document.getElementById('teamsContainer');
+  if (container.children.length >= 6) return;
+  const row = document.createElement('div');
+  row.className = 'team-input-row';
+  const placeholders = ['Team Crane 🦤','Team Rolex 🌯','Team Nsenene 🦗','Team Waragi 🥂'];
+  row.innerHTML = `<input type="text" class="team-input team-name" placeholder="${placeholders[container.children.length - 2] || 'Team...'}" maxlength="20">
+    <button class="btn-remove" onclick="removeTeam(this)">✕</button>`;
+  container.appendChild(row);
+}
+
+function removeTeam(btn) {
+  const container = document.getElementById('teamsContainer');
+  if (container.children.length <= 2) return;
+  btn.parentElement.remove();
+}
+
+function selectTimer(sec) {
+  state.timerSecs = sec;
+  document.querySelectorAll('.timer-option').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.sec) === sec);
+  });
+}
+
+function startGame() {
+  const inputs = document.querySelectorAll('.team-name');
+  const teams = [];
+  inputs.forEach((inp, i) => {
+    const name = inp.value.trim() || `Team ${i+1}`;
+    teams.push(name);
+  });
+  if (teams.length < 2) { alert('Please add at least 2 teams!'); return; }
+
+  state.teams = teams;
+  state.scores = new Array(teams.length).fill(0);
+  state.currentTeam = 0;
+  state.currentCard = 0;
+  state.cardOrder = shuffleArray([...Array(25).keys()]);
+  state.timerRemaining = state.timerSecs;
+
+  showScreen('game');
+  renderScoreStrip();
+  showWaiting(true);
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ═══════════════════════════════════════
+// SCORE STRIP
+// ═══════════════════════════════════════
+function renderScoreStrip() {
+  const strip = document.getElementById('scoreStrip');
+  strip.innerHTML = state.teams.map((t, i) => `
+    <div class="score-team ${i === state.currentTeam ? 'current-turn' : ''}" id="scoreTeam${i}">
+      <div class="score-team-name">${t}</div>
+      <div class="score-num" id="scoreNum${i}">${state.scores[i]}</div>
+    </div>
+  `).join('');
+}
+
+function updateScoreStrip() {
+  state.teams.forEach((t, i) => {
+    const el = document.getElementById(`scoreTeam${i}`);
+    if (el) {
+      el.classList.toggle('current-turn', i === state.currentTeam);
+      document.getElementById(`scoreNum${i}`).textContent = state.scores[i];
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// WAITING SCREEN
+// ═══════════════════════════════════════
+function showWaiting(isFirst = false) {
+  clearInterval(state.timerInterval);
+  state.turnActive = false;
+
+  document.getElementById('waitingOverlay').classList.add('active');
+  document.getElementById('playArea').style.display = 'none';
+
+  const nextTeam = state.teams[state.currentTeam];
+  if (isFirst) {
+    document.getElementById('waitingTitle').textContent = `Welcome to GUNDI!`;
+    document.getElementById('waitingSub').textContent = `${nextTeam}, you're going first! Get ready to describe some words.`;
+    document.getElementById('scoredNum').textContent = '–';
+  } else {
+    document.getElementById('waitingTitle').textContent = `Pass it over!`;
+    document.getElementById('waitingSub').textContent = `Next up: ${nextTeam}. Pass the device, then press Begin!`;
+  }
+  document.getElementById('startTurnBtn').textContent = isFirst ? '🎯 Let\'s Go!' : '🎯 Begin Turn';
+  document.getElementById('cardCounter').textContent = `Card ${state.currentCard + 1} of 25`;
+}
+
+// ═══════════════════════════════════════
+// TURN LOGIC
+// ═══════════════════════════════════════
+function startTurn() {
+  if (state.currentCard >= 25) { showResults(); return; }
+
+  document.getElementById('waitingOverlay').classList.remove('active');
+  document.getElementById('playArea').style.display = 'flex';
+  state.turnActive = true;
+
+  document.getElementById('currentTeamName').textContent = state.teams[state.currentTeam];
+
+  loadCard(state.cardOrder[state.currentCard]);
+  startTimer();
+}
+
+function loadCard(cardIdx) {
+  const card = ALL_CARDS[cardIdx];
+  const words = shuffleArray([...card.words]);
+  state.wordStates = words.map(() => 'neutral');
+  state._currentWords = words;
+
+  document.getElementById('cardBadge').textContent = `Card ${state.currentCard + 1}`;
+  document.getElementById('cardCounter').textContent = `Card ${state.currentCard + 1} of 25`;
+
+  renderWords(words);
+}
+
+function renderWords(words) {
+  const grid = document.getElementById('wordsGrid');
+  const romNums = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi','xvii','xviii','xix','xx','xxi'];
+  grid.innerHTML = words.map((w, i) => `
+    <div class="word-item ${state.wordStates[i]}" onclick="toggleWord(${i})" id="word${i}">
+      <span class="word-num">${romNums[i] || (i+1)}.</span>
+      <span class="word-text">${w}</span>
+      <span class="word-check">✓</span>
+    </div>
+  `).join('');
+}
+
+function toggleWord(idx) {
+  if (!state.turnActive) return;
+  const current = state.wordStates[idx];
+  if (current === 'neutral') {
+    state.wordStates[idx] = 'guessed';
+  } else if (current === 'guessed') {
+    state.wordStates[idx] = 'skipped';
+  } else {
+    state.wordStates[idx] = 'neutral';
+  }
+  const el = document.getElementById(`word${idx}`);
+  el.className = `word-item ${state.wordStates[idx]}`;
+}
+
+function nextCard() {
+  const guessed = state.wordStates.filter(s => s === 'guessed').length;
+  state.scores[state.currentTeam] += guessed;
+  state.currentCard++;
+
+  if (state.currentCard >= 25) {
+    endTurn();
+    return;
+  }
+
+  updateScoreStrip();
+  loadCard(state.cardOrder[state.currentCard]);
+  // Don't reset timer — continue same turn
+}
+
+function startTimer() {
+  state.timerRemaining = state.timerSecs;
+  updateTimerUI(state.timerRemaining);
+  clearInterval(state.timerInterval);
+  document.getElementById('timerWrap').classList.remove('time-warning');
+
+  state.timerInterval = setInterval(() => {
+    if (state.paused) return;
+    state.timerRemaining--;
+    updateTimerUI(state.timerRemaining);
+    if (state.timerRemaining <= 10) {
+      document.getElementById('timerWrap').classList.add('time-warning');
+    }
+    if (state.timerRemaining <= 0) {
+      clearInterval(state.timerInterval);
+      endTurn();
+    }
+  }, 1000);
+}
+
+function updateTimerUI(secs) {
+  document.getElementById('timerDisplay').textContent = secs;
+  const circumference = 251;
+  const offset = circumference * (1 - secs / state.timerSecs);
+  document.getElementById('timerRing').style.strokeDashoffset = offset;
+}
+
+function endTurn() {
+  clearInterval(state.timerInterval);
+  state.turnActive = false;
+
+  const guessed = state.wordStates.filter(s => s === 'guessed').length;
+  state.scores[state.currentTeam] += guessed;
+  state.currentCard++;
+
+  document.getElementById('scoredNum').textContent = guessed;
+  updateScoreStrip();
+
+  // Next team
+  state.currentTeam = (state.currentTeam + 1) % state.teams.length;
+
+  if (state.currentCard >= 25) {
+    showResults();
+    return;
+  }
+
+  showWaiting(false);
+}
+
+function togglePause() {
+  state.paused = !state.paused;
+  document.getElementById('pauseBtn').textContent = state.paused ? '▶' : '⏸';
+}
+
+// ═══════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════
+function showResults() {
+  showScreen('results');
+
+  const sorted = state.teams.map((t, i) => ({ name: t, score: state.scores[i] }))
+    .sort((a, b) => b.score - a.score);
+
+  document.getElementById('winnerName').textContent = sorted[0].name;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('resultsList').innerHTML = sorted.map((t, i) => `
+    <li class="${i === 0 ? 'first' : ''}">
+      <span class="result-rank">${medals[i] || `${i+1}.`}</span>
+      <span class="result-name">${t.name}</span>
+      <span class="result-score">${t.score} pts</span>
+    </li>
+  `).join('');
+
+  launchConfetti();
+}
+
+function restartGame() {
+  state.scores = new Array(state.teams.length).fill(0);
+  state.currentTeam = 0;
+  state.currentCard = 0;
+  state.cardOrder = shuffleArray([...Array(25).keys()]);
+  state.timerRemaining = state.timerSecs;
+  showScreen('game');
+  renderScoreStrip();
+  showWaiting(true);
+}
+
+// ═══════════════════════════════════════
+// QUIT
+// ═══════════════════════════════════════
+function confirmQuit() {
+  if (confirm('End this game and return to the menu?')) {
+    clearInterval(state.timerInterval);
+    state.turnActive = false;
+    showScreen('splash');
+  }
+}
+
+// ═══════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════
+function launchConfetti() {
+  const colors = ['#1AABAA','#E8B84B','#4DD4D3','#C85A2B','#B2ECEB','#FDF6E3'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        position:fixed;top:-10px;left:${Math.random()*100}vw;
+        width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        z-index:999;pointer-events:none;
+        animation:fall ${1.5+Math.random()*2}s linear forwards;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 60);
+  }
+}
+
+const fallStyle = document.createElement('style');
+fallStyle.textContent = `@keyframes fall { from { transform: translateY(0) rotate(0deg); opacity:1; } to { transform: translateY(110vh) rotate(${Math.floor(Math.random()*720)}deg); opacity:0; } }`;
+document.head.appendChild(fallStyle);
+</script>
+</body>
+</html>
